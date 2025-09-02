@@ -3,63 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Models\Compra;
+use App\Models\Produto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CompraController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'fornecedor' => 'required|string|max:255',
+            'produtos' => 'required|array|min:1',
+            'produtos.*.id' => 'required|exists:produtos,id',
+            'produtos.*.quantidade' => 'required|integer|min:1',
+            'produtos.*.preco_unitario' => 'required|numeric|min:0'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Compra $compra)
-    {
-        //
-    }
+        DB::transaction(function () use ($request) {
+            // Criar a compra
+            $compra = Compra::create([
+                'fornecedor' => $request->fornecedor
+            ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Compra $compra)
-    {
-        //
-    }
+            foreach ($request->produtos as $item) {
+                $produto = Produto::find($item['id']);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Compra $compra)
-    {
-        //
-    }
+                // Atualiza estoque
+                $estoqueAntigo = $produto->estoque ?? 0;
+                $novoEstoque = $estoqueAntigo + $item['quantidade'];
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Compra $compra)
-    {
-        //
+                // Atualiza custo médio
+                $custoAntigo = $produto->custo_medio ?? 0;
+                $quantidadeAntiga = $estoqueAntigo;
+                $quantidadeNova = $item['quantidade'];
+
+                $custoMedio = ($custoAntigo * $quantidadeAntiga + $item['preco_unitario'] * $quantidadeNova)
+                            / max(($quantidadeAntiga + $quantidadeNova), 1);
+
+                $produto->update([
+                    'estoque' => $novoEstoque,
+                    'custo_medio' => $custoMedio
+                ]);
+
+                // Relaciona produto à compra
+                $compra->produtos()->attach($produto->id, [
+                    'quantidade' => $item['quantidade'],
+                    'preco_unitario' => $item['preco_unitario']
+                ]);
+            }
+        });
+
+        return response()->json(['message' => 'Compra registrada com sucesso!'], 201);
     }
 }
