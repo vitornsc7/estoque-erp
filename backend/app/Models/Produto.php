@@ -6,5 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Produto extends Model
 {
-    //
+    protected $fillable = ['nome', 'preco_venda', 'custo_medio', 'estoque'];
+
+    public function compras()
+    {
+        return $this->belongsToMany(Compra::class, 'compra_produto')
+                    ->withPivot('quantidade', 'preco_unitario')
+                    ->withTimestamps();
+    }
 }
