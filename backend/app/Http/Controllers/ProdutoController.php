@@ -7,59 +7,27 @@ use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // List products
     public function index()
     {
-        //
+        return Produto::all(['id', 'nome', 'custo_medio', 'preco_venda', 'estoque']);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store new product
     public function store(Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'nome' => 'required|min:3',
+            'preco_venda' => 'required|numeric|min:0',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Produto $produto)
-    {
-        //
-    }
+        $produto = Produto::create([
+            'nome' => $validated['nome'],
+            'preco_venda' => $validated['preco_venda'],
+            'estoque' => 0,
+            'custo_medio' => 0,
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Produto $produto)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Produto $produto)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produto $produto)
-    {
-        //
+        return response()->json($produto, 201);
     }
 }
