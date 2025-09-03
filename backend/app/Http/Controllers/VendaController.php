@@ -2,64 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Venda;
+use App\Services\VendaService;
 use Illuminate\Http\Request;
 
 class VendaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $vendaService;
+
+    public function __construct(VendaService $vendaService)
     {
-        //
+        $this->vendaService = $vendaService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'cliente' => 'required|string|max:255',
+            'produtos' => 'required|array|min:1',
+            'produtos.*.id' => 'required|exists:produtos,id',
+            'produtos.*.quantidade' => 'required|integer|min:1',
+            'produtos.*.preco_unitario' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $venda = $this->vendaService->registrarVenda($validated);
+            return response()->json([
+                'message' => 'Venda registrada com sucesso!',
+                'total' => $venda->total,
+                'lucro' => $venda->lucro,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Venda $venda)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Venda $venda)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Venda $venda)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Venda $venda)
-    {
-        //
+        try {
+            $res = $this->vendaService->cancelarVenda($id);
+            return response()->json($res, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }
