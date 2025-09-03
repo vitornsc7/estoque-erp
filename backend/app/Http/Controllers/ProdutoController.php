@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produto;
+use App\Services\ProdutoService;
 use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
+    protected $produtoService;
+
+    public function __construct(ProdutoService $produtoService)
+    {
+        $this->produtoService = $produtoService;
+    }
+
     // List products
     public function index()
     {
-        return Produto::all(['id', 'nome', 'custo_medio', 'preco_venda', 'estoque']);
+        return $this->produtoService->listarProdutos();
     }
 
     // Store new product
@@ -21,12 +28,7 @@ class ProdutoController extends Controller
             'preco_venda' => 'required|numeric|min:0',
         ]);
 
-        $produto = Produto::create([
-            'nome' => $validated['nome'],
-            'preco_venda' => $validated['preco_venda'],
-            'estoque' => 0,
-            'custo_medio' => 0,
-        ]);
+        $produto = $this->produtoService->criarProduto($validated);
 
         return response()->json($produto, 201);
     }
