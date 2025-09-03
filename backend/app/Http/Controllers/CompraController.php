@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Compra;
-use App\Models\Produto;
+use App\Services\CompraService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CompraController extends Controller
 {
+    protected $compraService;
+
+    public function __construct(CompraService $compraService)
+    {
+        $this->compraService = $compraService;
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -19,40 +24,11 @@ class CompraController extends Controller
             'produtos.*.preco_unitario' => 'required|numeric|min:0'
         ]);
 
-        DB::transaction(function () use ($request) {
-            // Criar a compra
-            $compra = Compra::create([
-                'fornecedor' => $request->fornecedor
-            ]);
+        $compra = $this->compraService->registrarCompra($request->all());
 
-            foreach ($request->produtos as $item) {
-                $produto = Produto::find($item['id']);
-
-                // Atualiza estoque
-                $estoqueAntigo = $produto->estoque ?? 0;
-                $novoEstoque = $estoqueAntigo + $item['quantidade'];
-
-                // Atualiza custo médio
-                $custoAntigo = $produto->custo_medio ?? 0;
-                $quantidadeAntiga = $estoqueAntigo;
-                $quantidadeNova = $item['quantidade'];
-
-                $custoMedio = ($custoAntigo * $quantidadeAntiga + $item['preco_unitario'] * $quantidadeNova)
-                            / max(($quantidadeAntiga + $quantidadeNova), 1);
-
-                $produto->update([
-                    'estoque' => $novoEstoque,
-                    'custo_medio' => $custoMedio
-                ]);
-
-                // Relaciona produto à compra
-                $compra->produtos()->attach($produto->id, [
-                    'quantidade' => $item['quantidade'],
-                    'preco_unitario' => $item['preco_unitario']
-                ]);
-            }
-        });
-
-        return response()->json(['message' => 'Compra registrada com sucesso!'], 201);
+        return response()->json([
+            'message' => 'Compra registrada com sucesso!',
+            'compra_id' => $compra->id
+        ], 201);
     }
 }
