@@ -1,12 +1,26 @@
 <template>
   <section class="card">
-    <h2>Produtos Cadastrados</h2>
-    <button @click="carregarProdutos">Atualizar Lista</button>
-    <ul class="lista">
-      <li v-for="p in produtos" :key="p.id">
-        {{ p.id }} - {{ p.nome }} | Preço: R$ {{ p.preco_venda }}
-      </li>
-    </ul>
+    <div class="card-header">
+      <h2>Produtos Cadastrados</h2>
+      <p>Visualize todos os produtos cadastrados no sistema</p>
+    </div>
+
+    <table class="produtos-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome do Produto</th>
+          <th>Preço de Venda</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="p in produtos" :key="p.id">
+          <td>{{ p.id }}</td>
+          <td>{{ p.nome }}</td>
+          <td>R$ {{ Number(p.preco_venda).toFixed(2) }}</td>
+        </tr>
+      </tbody>
+    </table>
   </section>
 </template>
 
@@ -27,5 +41,11 @@ defineExpose({ carregarProdutos })
 </script>
 
 <style scoped>
-ul { margin-top: 10px; padding-left: 20px; }
+.produtos-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-sm); }
+
+.produtos-table th, .produtos-table td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: left; font-size: 14px; }
+
+.produtos-table th { background: #f4f6f8; color: var(--text-secondary); font-weight: 600; }
+
+button { margin: var(--spacing-md) 0; }
 </style>

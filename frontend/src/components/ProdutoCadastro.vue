@@ -45,23 +45,7 @@ const cadastrarProduto = async () => {
 
 <style scoped>
 .form { display: flex; flex-direction: column; gap: 12px; }
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-prefix {
-  position: absolute;
-  left: 12px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  pointer-events: none;
-}
-
-.input-wrapper input {
-  padding-left: 36px;
-}
-
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-prefix { position: absolute; left: 12px; color: var(--text-secondary); font-size: 14px; pointer-events: none; }
+.input-wrapper input { padding-left: 36px; }
 </style>
