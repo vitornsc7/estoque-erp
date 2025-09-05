@@ -1,18 +1,18 @@
 <template>
   <section class="card">
     <div class="card-header">
-      <h2>Registrar Compra</h2>
-      <p>Preencha os dados para registrar uma nova compra no sistema</p>
+      <h2>{{ titulo }}</h2>
+      <p>{{ descricao }}</p>
     </div>
 
-    <form @submit.prevent="registrarCompra">
+    <form @submit.prevent="registrarMovimentacao">
       <div class="form-group">
-        <label for="fornecedor">Nome do fornecedor:</label>
+        <label :for="campoId">{{ campoLabel }}:</label>
         <input
-          id="fornecedor"
-          v-model="compra.fornecedor"
+          :id="campoId"
+          v-model="movimentacao.campo"
           type="text"
-          placeholder="Ex: Empresa XYZ"
+          :placeholder="campoPlaceholder"
           required
         />
       </div>
@@ -25,13 +25,13 @@
               <th>Produto</th>
               <th>Quantidade</th>
               <th>Preço Unitário</th>
-              <th v-if="compra.produtos.length > 1">Ações</th>
+              <th v-if="movimentacao.produtos.length > 1">Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in compra.produtos" :key="index">
+            <tr v-for="(item, index) in movimentacao.produtos" :key="index">
               <td>
-                <select v-model="item.id" required>
+                <select v-model.number="item.id" required>
                   <option disabled value="">Selecione</option>
                   <option v-for="p in produtos" :key="p.id" :value="Number(p.id)">
                     {{ p.nome }}
@@ -60,12 +60,8 @@
                   />
                 </div>
               </td>
-              <td v-if="compra.produtos.length > 1">
-                <button
-                  @click.prevent="removerProduto(index)"
-                  type="button"
-                  class="btn-remover"
-                >
+              <td v-if="movimentacao.produtos.length > 1">
+                <button @click.prevent="removerProduto(index)" type="button" class="btn-remover">
                   Remover
                 </button>
               </td>
@@ -76,50 +72,45 @@
 
       <div class="form-actions">
         <button @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
-        <button type="submit">Registrar Compra</button>
+        <button type="submit">{{ botaoTexto }}</button>
       </div>
     </form>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import api from "../services/api"
+import { ref, onMounted, reactive, toRefs } from 'vue'
+import api from '../services/api'
 
-const compra = ref({
-  fornecedor: "",
+// Props para personalizar comportamento
+const props = defineProps({
+  tipo: { type: String, required: true } // "compra" ou "venda"
+})
+
+const titulo = props.tipo === 'compra' ? 'Registrar Compra' : 'Registrar Venda'
+const descricao =
+  props.tipo === 'compra'
+    ? 'Preencha os dados para registrar uma nova compra no sistema'
+    : 'Preencha os dados para registrar uma nova venda no sistema'
+const campoLabel = props.tipo === 'compra' ? 'Fornecedor' : 'Cliente'
+const campoId = props.tipo === 'compra' ? 'fornecedor' : 'cliente'
+const campoPlaceholder = props.tipo === 'compra' ? 'Ex: Empresa XYZ' : 'Ex: Fulano da Silva'
+const botaoTexto = props.tipo === 'compra' ? 'Registrar Compra' : 'Registrar Venda'
+
+// Estado do formulário
+const movimentacao = reactive({
+  campo: '',
   produtos: [{ id: null, quantidade: null, preco_unitario: null }]
 })
 
 const produtos = ref([])
 
 const carregarProdutos = async () => {
-  const { data } = await api.get("/produtos")
+  const { data } = await api.get('/produtos')
   produtos.value = data
 }
 
 onMounted(carregarProdutos)
-
-const adicionarProduto = () => {
-  compra.value.produtos.push({
-    id: null,
-    quantidade: null,
-    preco_unitario: null
-  })
-}
-const removerProduto = (i) => {
-  if (compra.value.produtos.length > 1) {
-    compra.value.produtos.splice(i, 1)
-  }
-}
-
-const registrarCompra = async () => {
-  await api.post("/compras", compra.value)
-  compra.value = {
-    fornecedor: "",
-    produtos: [{ id: null, quantidade: null, preco_unitario: null }]
-  }
-}
 </script>
 
 <style scoped>

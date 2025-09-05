@@ -22,7 +22,4 @@ const cancelarVenda = async () => {
 
 <style scoped>
 .form { display: flex; flex-direction: column; gap: 8px; }
-input { padding: 6px; border: 1px solid #aaa; border-radius: 4px; }
-button { padding: 6px 12px; cursor: pointer; }
-.btn-cancelar { background: #c0392b; color: white; border: none; border-radius: 4px; }
 </style>
