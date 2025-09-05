@@ -1,9 +1,9 @@
 <template>
 	<div class="container">
-		<CompraRegistro />
+		<CompraRegistro tipo="compra" />
 	</div>
 </template>
 
 <script setup>
-import CompraRegistro from '../components/CompraRegistro.vue'
+import CompraRegistro from '../components/RegistroMovimentacao.vue'
 </script>
