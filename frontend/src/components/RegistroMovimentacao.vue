@@ -6,7 +6,6 @@
     </div>
 
     <form @submit.prevent="registrarMovimentacao">
-      <!-- Cliente/Fornecedor -->
       <div class="form-group">
         <label :for="campoId">{{ campoLabel }}:</label>
         <input
@@ -18,7 +17,6 @@
         />
       </div>
 
-      <!-- Produtos -->
       <div class="form-group">
         <label>Produtos:</label>
         <div v-if="produtosErro" class="erro-produtos">{{ produtosErro }}</div>
@@ -78,7 +76,7 @@
       </div>
 
       <div class="form-actions">
-        <button @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
+        <button class="btn-produto" @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
         <button type="submit">{{ botaoTexto }}</button>
       </div>
     </form>
@@ -104,7 +102,6 @@ const campoPlaceholder =
   props.tipo === 'compra' ? 'Ex: Empresa XYZ' : 'Ex: Fulano da Silva'
 const botaoTexto = props.tipo === 'compra' ? 'Registrar Compra' : 'Registrar Venda'
 
-// Estado do formulário
 const movimentacao = reactive({
   [campoId]: '',
   produtos: [{ id: null, quantidade: 1, preco_unitario: 0 }]
@@ -113,7 +110,6 @@ const movimentacao = reactive({
 const produtos = ref([])
 const produtosErro = ref('')
 
-// Carregar produtos
 const carregarProdutos = async () => {
   try {
     const { data } = await api.get('/produtos')
@@ -127,7 +123,6 @@ const carregarProdutos = async () => {
 
 onMounted(carregarProdutos)
 
-// Funções
 const adicionarProduto = () => {
   movimentacao.produtos.push({
     id: null,
@@ -170,6 +165,8 @@ const registrarMovimentacao = async () => {
 .form-actions { display: flex; justify-content: space-between; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
 
 .btn-remover { background: none; color: #46474b; text-decoration: underline; }
+.btn-produto { background: var(--border-color); color: var(--text-primary);}
+
 .erro-produtos {
   color: #d32f2f;
   margin-bottom: 10px;
