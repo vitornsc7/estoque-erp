@@ -14,7 +14,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="p in produtos" :key="p.id">
+        <tr v-if="produtos.length === 0">
+          <td colspan="3">
+            <p>Nenhum produto cadastrado.</p>
+          </td>
+        </tr>
+        <tr v-for="p in produtos" :key="p.id" v-else>
           <td>{{ p.id }}</td>
           <td>{{ p.nome }}</td>
           <td>R$ {{ Number(p.preco_venda).toFixed(2) }}</td>
