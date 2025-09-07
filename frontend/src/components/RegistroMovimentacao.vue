@@ -10,7 +10,7 @@
         <label :for="campoId">{{ campoLabel }}:</label>
         <input
           :id="campoId"
-          v-model="movimentacao.campo"
+          v-model="movimentacao[campoId]"
           type="text"
           :placeholder="campoPlaceholder"
           required
@@ -19,7 +19,8 @@
 
       <div class="form-group">
         <label>Produtos:</label>
-        <table class="produtos-table">
+        <div v-if="produtosErro" class="erro-produtos">{{ produtosErro }}</div>
+        <table class="produtos-table" v-if="!produtosErro">
           <thead>
             <tr>
               <th>Produto</th>
@@ -32,8 +33,8 @@
             <tr v-for="(item, index) in movimentacao.produtos" :key="index">
               <td>
                 <select v-model.number="item.id" required>
-                  <option disabled value="">Selecione</option>
-                  <option v-for="p in produtos" :key="p.id" :value="Number(p.id)">
+                  <option disabled :value="null">Selecione</option>
+                  <option v-for="p in produtos" :key="p.id" :value="p.id">
                     {{ p.nome }}
                   </option>
                 </select>
@@ -61,7 +62,11 @@
                 </div>
               </td>
               <td v-if="movimentacao.produtos.length > 1">
-                <button @click.prevent="removerProduto(index)" type="button" class="btn-remover">
+                <button
+                  @click.prevent="removerProduto(index)"
+                  type="button"
+                  class="btn-remover"
+                >
                   Remover
                 </button>
               </td>
@@ -71,7 +76,7 @@
       </div>
 
       <div class="form-actions">
-        <button @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
+        <button class="btn-produto" @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
         <button type="submit">{{ botaoTexto }}</button>
       </div>
     </form>
@@ -79,12 +84,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, toRefs } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import api from '../services/api'
 
-// Props para personalizar comportamento
 const props = defineProps({
-  tipo: { type: String, required: true } // "compra" ou "venda"
+  tipo: { type: String, required: true }
 })
 
 const titulo = props.tipo === 'compra' ? 'Registrar Compra' : 'Registrar Venda'
@@ -94,23 +98,53 @@ const descricao =
     : 'Preencha os dados para registrar uma nova venda no sistema'
 const campoLabel = props.tipo === 'compra' ? 'Fornecedor' : 'Cliente'
 const campoId = props.tipo === 'compra' ? 'fornecedor' : 'cliente'
-const campoPlaceholder = props.tipo === 'compra' ? 'Ex: Empresa XYZ' : 'Ex: Fulano da Silva'
+const campoPlaceholder =
+  props.tipo === 'compra' ? 'Ex: Empresa XYZ' : 'Ex: Fulano da Silva'
 const botaoTexto = props.tipo === 'compra' ? 'Registrar Compra' : 'Registrar Venda'
 
-// Estado do formulário
 const movimentacao = reactive({
-  campo: '',
-  produtos: [{ id: null, quantidade: null, preco_unitario: null }]
+  [campoId]: '',
+  produtos: [{ id: null, quantidade: 1, preco_unitario: 0 }]
 })
 
 const produtos = ref([])
+const produtosErro = ref('')
 
 const carregarProdutos = async () => {
-  const { data } = await api.get('/produtos')
-  produtos.value = data
+  try {
+    const { data } = await api.get('/produtos')
+    produtos.value = data
+    produtosErro.value = ''
+  } catch (error) {
+    produtosErro.value = 'Erro ao carregar produtos. Tente novamente mais tarde.'
+    produtos.value = []
+  }
 }
 
 onMounted(carregarProdutos)
+
+const adicionarProduto = () => {
+  movimentacao.produtos.push({
+    id: null,
+    quantidade: 1,
+    preco_unitario: 0
+  })
+}
+
+const removerProduto = (index) => {
+  if (movimentacao.produtos.length > 1) {
+    movimentacao.produtos.splice(index, 1)
+  }
+}
+
+const registrarMovimentacao = async () => {
+  const rota = props.tipo === 'compra' ? '/compras' : '/vendas'
+  await api.post(rota, movimentacao)
+
+  // resetar formulário
+  movimentacao[campoId] = ''
+  movimentacao.produtos = [{ id: null, quantidade: 1, preco_unitario: 0 }]
+}
 </script>
 
 <style scoped>
@@ -131,4 +165,12 @@ onMounted(carregarProdutos)
 .form-actions { display: flex; justify-content: space-between; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
 
 .btn-remover { background: none; color: #46474b; text-decoration: underline; }
+.btn-produto { background: var(--border-color); color: var(--text-primary);}
+
+.erro-produtos {
+  color: #d32f2f;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
 </style>
