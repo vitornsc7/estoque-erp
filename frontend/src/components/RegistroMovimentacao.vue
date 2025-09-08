@@ -77,7 +77,24 @@
 
       <div class="form-actions">
         <button class="btn-produto" @click.prevent="adicionarProduto" type="button">Adicionar Produto</button>
-        <button type="submit">{{ botaoTexto }}</button>
+        <button
+          type="submit"
+          :disabled="
+            carregando ||
+            movimentacao[campoId].length < 3 ||
+            movimentacao.produtos.some(
+              p =>
+                !p.id ||
+                !p.quantidade ||
+                p.preco_unitario === null ||
+                p.preco_unitario === '' ||
+                p.preco_unitario === undefined
+            )
+          "
+        >
+          <span v-if="carregando">Registrando...</span>
+          <span v-else>{{ botaoTexto }}</span>
+        </button>
       </div>
     </form>
   </section>
@@ -137,40 +154,41 @@ const removerProduto = (index) => {
   }
 }
 
+const carregando = ref(false)
+
 const registrarMovimentacao = async () => {
   const rota = props.tipo === 'compra' ? '/compras' : '/vendas'
-  await api.post(rota, movimentacao)
+  carregando.value = true
+  try {
+    await api.post(rota, movimentacao)
 
-  // resetar formulário
-  movimentacao[campoId] = ''
-  movimentacao.produtos = [{ id: null, quantidade: 1, preco_unitario: 0 }]
+    // resetar formulário
+    movimentacao[campoId] = ''
+    movimentacao.produtos = [{ id: null, quantidade: 1, preco_unitario: 0 }]
+  } catch (error) {
+    if (error.response.status === 400) {
+      alert('Erro ao registrar movimentação. Quantidade em estoque insuficiente ao solicitado.')
+      carregando.value = false
+      return
+    }
+
+    alert('Erro ao registrar movimentação. Verifique sua conexão e tente novamente.')
+  } finally {
+    carregando.value = false
+  }
 }
 </script>
 
 <style scoped>
 .produtos-table { width: 100%; border-collapse: collapse; margin-top: var(--spacing-sm); }
-
 .produtos-table th, .produtos-table td { border: 1px solid var(--border-color); padding: var(--spacing-sm); text-align: left; font-size: 14px; }
-
 .produtos-table th { background: #f4f6f8; color: var(--text-secondary); font-weight: 600; }
-
 .produtos-table td select, .produtos-table td input { width: 100%; }
-
 .input-wrapper { position: relative; display: flex; align-items: center; }
-
 .input-prefix { position: absolute; left: 12px; color: var(--text-secondary); font-size: 14px; pointer-events: none; }
-
 .input-wrapper input { padding-left: 36px; }
-
 .form-actions { display: flex; justify-content: space-between; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
-
 .btn-remover { background: none; color: #46474b; text-decoration: underline; }
 .btn-produto { background: var(--border-color); color: var(--text-primary);}
-
-.erro-produtos {
-  color: #d32f2f;
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-
+.erro-produtos { color: #d32f2f; margin-bottom: 10px; font-size: 14px; }
 </style>
