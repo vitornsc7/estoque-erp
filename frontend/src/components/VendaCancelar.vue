@@ -3,7 +3,7 @@
     <h2>Cancelar Venda</h2>
     <form @submit.prevent="cancelarVenda" class="form">
       <input v-model.number="vendaId" type="number" placeholder="ID da Venda" />
-      <button type="submit" class="btn-cancelar">Cancelar</button>
+      <button type="submit" class="btn-cancelar" :disabled="!vendaId">Cancelar</button>
     </form>
   </section>
 </template>
