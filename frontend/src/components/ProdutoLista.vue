@@ -10,19 +10,23 @@
         <tr>
           <th>ID</th>
           <th>Nome do Produto</th>
+          <th>Custo Médio</th>
           <th>Preço de Venda</th>
+          <th>Estoque</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="produtos.length === 0">
-          <td colspan="3">
+          <td colspan="5">
             <p>Nenhum produto cadastrado.</p>
           </td>
         </tr>
         <tr v-for="p in produtos" :key="p.id" v-else>
           <td>{{ p.id }}</td>
           <td>{{ p.nome }}</td>
+          <td>R$ {{ Number(p.custo_medio).toFixed(2) }}</td>
           <td>R$ {{ Number(p.preco_venda).toFixed(2) }}</td>
+          <td>{{ p.estoque }}</td>
         </tr>
       </tbody>
     </table>
