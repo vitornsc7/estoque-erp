@@ -2,64 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Produto;
+use App\Services\ProdutoService;
 use Illuminate\Http\Request;
 
 class ProdutoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $produtoService;
+
+    public function __construct(ProdutoService $produtoService)
+    {
+        $this->produtoService = $produtoService;
+    }
+
+    // List products
     public function index()
     {
-        //
+        return $this->produtoService->listarProdutos();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store new product
     public function store(Request $request)
     {
-        //
-    }
+        $validated = $request->validate([
+            'nome' => 'required|min:3',
+            'preco_venda' => 'required|numeric|min:0',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Produto $produto)
-    {
-        //
-    }
+        $produto = $this->produtoService->criarProduto($validated);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Produto $produto)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Produto $produto)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Produto $produto)
-    {
-        //
+        return response()->json($produto, 201);
     }
 }

@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('vendas', function (Blueprint $table) {
             $table->id();
+            $table->string('cliente');
+            $table->decimal('total', 10, 2)->default(0);
+            $table->decimal('lucro', 10, 2)->default(0);
             $table->timestamps();
         });
     }

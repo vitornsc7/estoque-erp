@@ -2,64 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Compra;
+use App\Services\CompraService;
 use Illuminate\Http\Request;
 
 class CompraController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $compraService;
+
+    public function __construct(CompraService $compraService)
     {
-        //
+        $this->compraService = $compraService;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'fornecedor' => 'required|string|max:255',
+            'produtos' => 'required|array|min:1',
+            'produtos.*.id' => 'required|exists:produtos,id',
+            'produtos.*.quantidade' => 'required|integer|min:1',
+            'produtos.*.preco_unitario' => 'required|numeric|min:0'
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Compra $compra)
-    {
-        //
-    }
+        $compra = $this->compraService->registrarCompra($request->all());
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Compra $compra)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Compra $compra)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Compra $compra)
-    {
-        //
+        return response()->json([
+            'message' => 'Compra registrada com sucesso!',
+            'compra_id' => $compra->id
+        ], 201);
     }
 }

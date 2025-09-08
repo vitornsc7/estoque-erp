@@ -1,0 +1,151 @@
+:root {
+	/* Cores */
+	--primary-color: #2b3449;
+	--primary-hover: #475a7c;
+	--text-color: #384d63;
+	--text-secondary: #5c6b7e;
+	--border-color: #e9edf1;
+	--border-focus: #2c3e50;
+	--background: #ffffff;
+
+	/* Bordas */
+	--radius: 12px;
+	--radius-sm: 8px;
+
+	/* Transições */
+	--transition: all 0.3s ease;
+
+	/* Espaçamentos */
+	--spacing-xs: 4px;
+	--spacing-sm: 8px;
+	--spacing-md: 20px;
+	--spacing-lg: 24px;
+	--spacing-xl: 30px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+	background-color: #f8f9fa;
+	color: var(--text-color);
+}
+
+/* Card */
+.card {
+	background: var(--background);
+	border-radius: var(--radius);
+	border: 1px solid var(--border-color);
+	padding: var(--spacing-xl);
+	margin-bottom: var(--spacing-md);
+	transition: var(--transition);
+	max-width: 800px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.card-header {
+	margin-bottom: var(--spacing-md);
+}
+
+/* Tipografia */
+h2 {
+	color: var(--text-color);
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 1.3;
+	margin-bottom: var(--spacing-sm);
+}
+
+p {
+	color: var(--text-secondary);
+	font-size: 14px;
+	margin-top: var(--spacing-xs);
+}
+
+/* Formulários */
+.form-group {
+	margin-bottom: var(--spacing-md);
+}
+
+label {
+	display: block;
+	font-size: 13px;
+	font-weight: 500;
+	margin-bottom: var(--spacing-sm);
+	color: var(--text-secondary);
+}
+
+input,
+select {
+	width: 100%;
+	padding: var(--spacing-sm);
+	border: 1px solid var(--border-color);
+	border-radius: var(--radius-sm);
+	font-size: 14px;
+	transition: var(--transition);
+	background-color: #f2f5f8;
+}
+
+input:focus,
+select:focus {
+	outline: none;
+	border-color: var(--border-focus);
+}
+
+input::placeholder {
+	color: #6c7179;
+}
+
+option {
+	padding: 10px;
+}
+
+/* Botões */
+button {
+	background: var(--primary-color);
+	color: white;
+	border: none;
+	border-radius: var(--radius-sm);
+	padding: var(--spacing-sm);
+	font-size: 14px;
+	cursor: pointer;
+	transition: var(--transition);
+	width: 100%;
+	display: block;
+	text-align: center;
+}
+
+button:hover,
+button:focus {
+	background: var(--primary-hover);
+}
+
+button:disabled {
+	background: #a0a5ab;
+	cursor: not-allowed;
+}
+
+button:not(:disabled):active {
+	transform: scale(0.98);
+}
+
+.buttons {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+	.card {
+		padding: var(--spacing-md);
+	}
+
+	h2 {
+		font-size: 18px;
+	}
+}
