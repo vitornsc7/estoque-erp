@@ -24,7 +24,12 @@
           />
         </div>
       </div>
-      <button type="submit">Cadastrar Produto</button>
+      <button
+        type="submit"
+        :disabled="produto.nome.length < 3 || produto.preco_venda === null || produto.preco_venda === ''"
+      >
+        Cadastrar Produto
+      </button>
     </form>
   </section>
 </template>
